@@ -1,0 +1,10 @@
+D:\Documents\work_space\project_net\GoogleServices\bin\Debug\GoogleServices.dll
+D:\Documents\work_space\project_net\GoogleServices\bin\Debug\GoogleServices.pdb
+D:\Documents\work_space\project_net\GoogleServices\bin\Debug\GoogleServices.tlb
+D:\Documents\work_space\project_net\GoogleServices\bin\Debug\Newtonsoft.Json.dll
+D:\Documents\work_space\project_net\GoogleServices\bin\Debug\Newtonsoft.Json.xml
+D:\Documents\work_space\project_net\GoogleServices\obj\Debug\GoogleServices.csproj.AssemblyReference.cache
+D:\Documents\work_space\project_net\GoogleServices\obj\Debug\GoogleServices.csproj.CoreCompileInputs.cache
+D:\Documents\work_space\project_net\GoogleServices\obj\Debug\GoogleSe.45D60D1F.Up2Date
+D:\Documents\work_space\project_net\GoogleServices\obj\Debug\GoogleServices.dll
+D:\Documents\work_space\project_net\GoogleServices\obj\Debug\GoogleServices.pdb
