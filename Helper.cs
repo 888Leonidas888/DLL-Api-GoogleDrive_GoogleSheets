@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Web;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Policy;
-using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 using System.Net.Http;
 
@@ -129,16 +124,17 @@ namespace GoogleServices
             try
             {
 
-            if (binaryData == null || binaryData.Length == 0)
-            {
-                throw new Exception("El arreglo de bytes esta vacío o es nulo");
-            }
+                if (binaryData == null || binaryData.Length == 0)
+                {
+                    throw new Exception("El arreglo de bytes esta vacío o es nulo");
+                }
 
-            return Convert.ToBase64String(binaryData);
+                return Convert.ToBase64String(binaryData);
             }
             catch
             {
                 throw new Exception("No se puede convertir a base64.");
+
             }
         }
 
@@ -183,18 +179,15 @@ namespace GoogleServices
                 string fileName = Path.GetFileName(filePath);
                 convertedDict["name"] = fileName;
 
-                string body = JsonConvert.SerializeObject(convertedDict, Formatting.Indented);
-
+                string metada = JsonConvert.SerializeObject(convertedDict);
                 string mimeType = convertedDict.ContainsKey("mimeType") ? convertedDict["mimeType"].ToString() : "";
-
+                string base64 = Helper.SourceToBase64(filePath);
                 string startBoundary = $"--{boundary}";
                 string finishBoundary = $"{startBoundary}--";
-                string strTmp = "{0}{1}Content-Type: application/json; charset=UTF-8{1}{1}{2}{1}{0}{1}Content-Type: {3}{1}Content-Transfer-Encoding: base64{1}{1}{4}{1}{5}";
-                string base64 = Helper.SourceToBase64(filePath);
+                string strTmp = "{0}{1}Content-Type: application/json; charset=UTF-8{1}{1}{2}{1}{0}{1}";
+                strTmp += "Content-Type: {3}{1}Content-Transfer-Encoding: base64{1}{1}{4}{1}{5}";
 
-                string related = string.Format(
-                    strTmp, startBoundary, "\r\n", body, mimeType, base64, finishBoundary
-                );
+                string related = string.Format(strTmp, startBoundary, "\r\n", metada, mimeType, base64, finishBoundary);
 
                 return related;
             }
@@ -203,76 +196,10 @@ namespace GoogleServices
                 throw new ArgumentException(ex.Message);
             }
         }
-
-        /// <summary>
-        /// Realiza una solicitud HTTP utilizando el método, la URL y los parámetros proporcionados.
-        /// </summary>
-        /// <param name="method">El método HTTP a usar (por ejemplo, "GET", "POST", "PUT", "DELETE").</param>
-        /// <param name="url">La URL a la que se enviará la solicitud.</param>
-        /// <param name="body">El cuerpo de la solicitud (opcional).</param>
-        /// <param name="headers">Un diccionario que contiene los encabezados personalizados a incluir en la solicitud (opcional).</param>
-        /// <returns>Una tarea que representa la operación asincrónica. El resultado contiene la respuesta HTTP.</returns>
-        /// <exception cref="ArgumentException">
-        /// Lanzada si el parámetro <paramref name="method"/> o <paramref name="url"/> es nulo o está vacío.
-        /// </exception>
-        /// <exception cref="InvalidOperationException">
-        /// Lanzada si ocurre un error al conectar con el servidor.
-        /// </exception>
-        public static async Task<HttpResponseMessage> RequestAsync(string method, string url, object body = null, Dictionary<string, string> headers = null)
-        {
-            if (string.IsNullOrEmpty(method))
-                throw new ArgumentException("El parámetro 'method' no puede ser nulo o vacío.", nameof(method));
-
-            if (string.IsNullOrEmpty(url))
-                throw new ArgumentException("El parámetro 'url' no puede ser nulo o vacío.", nameof(url));
-
-            var client = new HttpClient();
-            var request = new HttpRequestMessage(new HttpMethod(method), url);
-            
-            try
-            {
-                if (headers != null)
-                {
-                    foreach (var header in headers)
-                    {
-                        request.Headers.Add(header.Key, header.Value);
-                    }
-                }
-
-                if (body != null)
-                {
-                    if (body is string bodyString)
-                    {
-                        request.Content = new StringContent(bodyString, Encoding.UTF8); //, "application/json");
-                    }
-                    else if (body is byte[] bodyBytes)
-                    {
-                        request.Content = new ByteArrayContent(bodyBytes);
-                    }
-                    else
-                    {
-                        throw new ArgumentException("El cuerpo debe ser un string o un arreglo de bytes.");
-                    }
-                }
-
-                var response = await client.SendAsync(request);
-                return response;
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException("Error al conectar con el servidor.", ex);
-            }
-            finally
-            {
-                client.Dispose();
-            }
-        }
-
-        public  static HttpResponseMessage Request(string method, string url, object body = null, Dictionary<string, string> headers = null)
+        public  static HttpResponseMessage Request(string method, string url, object body = null, Scripting.Dictionary headers = null)
         {
             try
             {
-
                 using (var client = new HttpClient())
                 {                
                     HttpMethod httpMethod = new HttpMethod(method);
@@ -282,22 +209,22 @@ namespace GoogleServices
                     {
                         if (body is string)
                         {
-                            requestMessage.Content = new StringContent((string)body);//, Encoding.UTF8, "application/json");
+                            requestMessage.Content = new StringContent((string)body);                            
                         }
                         else if (body is byte[])
                         {
                             requestMessage.Content = new ByteArrayContent((byte[])body);
                         }
                     }
-                             
+              
                     if (headers != null)
                     {
                         foreach (var header in headers)
-                        {
-                            requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value);
+                        {               
+                            requestMessage.Headers.TryAddWithoutValidation(header.ToString(),headers.get_Item(header));
                         }
-                    }
-                
+                    }               
+
                     return client.SendAsync(requestMessage).Result;
                 }
             }
@@ -305,6 +232,6 @@ namespace GoogleServices
             {
                 throw new Exception($"Error Request: {ex.Message}");
             }
-        }
+        }      
     }
 }
