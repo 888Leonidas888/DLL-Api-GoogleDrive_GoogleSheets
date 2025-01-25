@@ -38,8 +38,8 @@ namespace GoogleServices
 
             // Generar una cadena aleatoria usando códigos ASCII
             for (int i = 0; i < length; i++)
-            {                
-                int randomCharCode = random.Next(65, 123);       
+            {
+                int randomCharCode = random.Next(65, 123);
                 if (randomCharCode > 90 && randomCharCode < 97)
                 {
                     randomCharCode = random.Next(97, 123);
@@ -64,7 +64,7 @@ namespace GoogleServices
                 {
                     await writer.WriteAsync(content);
                 }
-                return true; 
+                return true;
             }
             catch
             {
@@ -94,7 +94,7 @@ namespace GoogleServices
         /// Lee el contenido de un archivo de texto especificado.
         /// </summary>
         /// <param name="pathResource">Ruta completa del archivo a leer.</param>
-        /// <returns>Contenido del archivo como una cadena de texto.</returns>
+        /// <returns>El contenido del archivo como una cadena de texto.</returns>
         public static string ReadFile(string pathResource)
         {
             try
@@ -196,34 +196,44 @@ namespace GoogleServices
                 throw new ArgumentException(ex.Message);
             }
         }
-        public  static HttpResponseMessage Request(string method, string url, object body = null, Scripting.Dictionary headers = null)
+
+        /// <summary>
+        /// Realiza una solicitud HTTP con el método, URL, cuerpo y encabezados especificados.
+        /// </summary>
+        /// <param name="method">El método HTTP (GET, POST, PUT, DELETE, etc.).</param>
+        /// <param name="url">La URL a la que se enviará la solicitud.</param>
+        /// <param name="body">El cuerpo de la solicitud, puede ser una cadena o un arreglo de bytes (opcional).</param>
+        /// <param name="headers">Encabezados adicionales para la solicitud (opcional).</param>
+        /// <returns>La respuesta HTTP recibida.</returns>
+        /// <exception cref="Exception">Lanzada si ocurre un error durante la solicitud.</exception>
+        public static HttpResponseMessage Request(string method, string url, object body = null, Scripting.Dictionary headers = null)
         {
             try
             {
                 using (var client = new HttpClient())
-                {                
+                {
                     HttpMethod httpMethod = new HttpMethod(method);
                     var requestMessage = new HttpRequestMessage(httpMethod, url);
-                             
+
                     if (body != null)
                     {
                         if (body is string)
                         {
-                            requestMessage.Content = new StringContent((string)body);                            
+                            requestMessage.Content = new StringContent((string)body);
                         }
                         else if (body is byte[])
                         {
                             requestMessage.Content = new ByteArrayContent((byte[])body);
                         }
                     }
-              
+
                     if (headers != null)
                     {
                         foreach (var header in headers)
-                        {               
-                            requestMessage.Headers.TryAddWithoutValidation(header.ToString(),headers.get_Item(header));
+                        {
+                            requestMessage.Headers.TryAddWithoutValidation(header.ToString(), headers.get_Item(header));
                         }
-                    }               
+                    }
 
                     return client.SendAsync(requestMessage).Result;
                 }
@@ -232,6 +242,6 @@ namespace GoogleServices
             {
                 throw new Exception($"Error Request: {ex.Message}");
             }
-        }      
+        }
     }
 }
